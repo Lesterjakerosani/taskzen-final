@@ -1,7 +1,17 @@
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-const FROM = `TaskZen <${process.env.RESEND_FROM_EMAIL ?? "onboarding@resend.dev"}>`;
+const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false,
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+  tls: { rejectUnauthorized: false },
+});
+
+const FROM = `"TaskZen" <${process.env.EMAIL_USER}>`;
 
 function otpBlock(otp: string) {
   return `
@@ -21,7 +31,7 @@ export async function sendVerificationEmail(
   username: string,
   otp: string
 ): Promise<void> {
-  const { error } = await resend.emails.send({
+  await transporter.sendMail({
     from: FROM,
     to,
     subject: "Verify your TaskZen account",
@@ -36,7 +46,6 @@ export async function sendVerificationEmail(
       </div>
     `,
   });
-  if (error) throw new Error(error.message);
 }
 
 export async function sendResetPasswordEmail(
@@ -44,7 +53,7 @@ export async function sendResetPasswordEmail(
   username: string,
   otp: string
 ): Promise<void> {
-  const { error } = await resend.emails.send({
+  await transporter.sendMail({
     from: FROM,
     to,
     subject: "Reset your TaskZen password",
@@ -59,5 +68,4 @@ export async function sendResetPasswordEmail(
       </div>
     `,
   });
-  if (error) throw new Error(error.message);
 }
