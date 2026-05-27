@@ -1,17 +1,15 @@
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-  tls: { rejectUnauthorized: false },
-});
+const apiKey = process.env.RESEND_API_KEY;
 
-const FROM = `"TaskZen" <${process.env.EMAIL_USER}>`;
+if (!apiKey) {
+  console.error("[Email] RESEND_API_KEY is not set — emails will fail");
+} else {
+  console.log("[Email] Resend initialized successfully");
+}
+
+const resend = new Resend(apiKey);
+const FROM = "TaskZen <onboarding@resend.dev>";
 
 function otpBlock(otp: string) {
   return `
@@ -31,7 +29,8 @@ export async function sendVerificationEmail(
   username: string,
   otp: string
 ): Promise<void> {
-  await transporter.sendMail({
+  console.log(`[Email] Sending verification email to ${to}`);
+  const { data, error } = await resend.emails.send({
     from: FROM,
     to,
     subject: "Verify your TaskZen account",
@@ -46,6 +45,11 @@ export async function sendVerificationEmail(
       </div>
     `,
   });
+  if (error) {
+    console.error("[Email] Resend error (verification):", error);
+    throw new Error(error.message);
+  }
+  console.log("[Email] Verification email sent, id:", data?.id);
 }
 
 export async function sendResetPasswordEmail(
@@ -53,7 +57,8 @@ export async function sendResetPasswordEmail(
   username: string,
   otp: string
 ): Promise<void> {
-  await transporter.sendMail({
+  console.log(`[Email] Sending password reset email to ${to}`);
+  const { data, error } = await resend.emails.send({
     from: FROM,
     to,
     subject: "Reset your TaskZen password",
@@ -68,4 +73,9 @@ export async function sendResetPasswordEmail(
       </div>
     `,
   });
+  if (error) {
+    console.error("[Email] Resend error (reset):", error);
+    throw new Error(error.message);
+  }
+  console.log("[Email] Reset email sent, id:", data?.id);
 }
