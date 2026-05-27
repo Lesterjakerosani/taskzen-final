@@ -20,9 +20,9 @@ function getTransporter(): Transporter {
   }
 
   _transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 465,
-    secure: true, // SSL on 465 — more reliable on cloud hosts than STARTTLS/587
+    host: "smtp-relay.brevo.com",
+    port: 587,
+    secure: false,
     auth: { user, pass },
     tls: { rejectUnauthorized: false },
     connectionTimeout: 15_000,
