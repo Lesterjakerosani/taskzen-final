@@ -1,0 +1,209 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Soft Warm Palette ─────────────────────────────────────────────────── */
+/* Background: #EEEAE4  |  Card: #F4F1ED  |  Border: #DDD9D3               */
+/* Foreground: #3A3530  |  Muted: #7A7570  |  Subtle: #C8C4BE              */
+
+@layer base {
+  :root {
+    --font-inter: Arial, sans-serif;
+    --font-playfair: Arial, sans-serif;
+    --background: 35 18% 90%;       /* #E8E4DE — soft warm gray */
+    --foreground: 25 15% 20%;       /* #3A3530 — warm dark brown */
+    --card: 33 22% 93%;             /* #F0EDE8 — warm off-white, no glare */
+    --card-foreground: 25 15% 18%;  /* #352F2A — deep warm */
+    --popover: 33 22% 93%;
+    --popover-foreground: 25 15% 18%;
+    --primary: 25 15% 25%;
+    --primary-foreground: 33 22% 93%;
+    --secondary: 33 15% 87%;        /* #DDD9D3 — light warm */
+    --secondary-foreground: 25 15% 25%;
+    --muted: 33 15% 87%;
+    --muted-foreground: 25 8% 47%;  /* #7A7570 — muted warm */
+    --accent: 33 18% 85%;
+    --accent-foreground: 25 15% 20%;
+    --destructive: 0 55% 45%;
+    --destructive-foreground: 33 22% 93%;
+    --border: 33 14% 82%;           /* #D4CFC9 — soft visible border */
+    --input: 33 14% 82%;
+    --ring: 25 15% 35%;
+    --radius: 0.25rem;
+  }
+
+  .dark {
+    --background: 20 6% 9%;         /* #181614 — very dark warm */
+    --foreground: 33 15% 87%;       /* #DDD9D3 — warm white */
+    --card: 20 5% 13%;              /* #211F1D */
+    --card-foreground: 33 15% 87%;
+    --popover: 20 5% 13%;
+    --popover-foreground: 33 15% 87%;
+    --primary: 33 15% 82%;          /* warm light for dark mode */
+    --primary-foreground: 20 6% 9%;
+    --secondary: 20 5% 19%;         /* #302D2A */
+    --secondary-foreground: 33 10% 72%;
+    --muted: 20 5% 19%;
+    --muted-foreground: 0 0% 50%;   /* #808080 */
+    --accent: 20 5% 22%;
+    --accent-foreground: 33 15% 82%;
+    --destructive: 0 62% 48%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 20 5% 20%;            /* #332F2C */
+    --input: 20 5% 20%;
+    --ring: 33 15% 60%;
+  }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1, "kern" 1;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-sans;
+  }
+}
+
+/* ─── Scrollbar ─────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { @apply bg-transparent; }
+::-webkit-scrollbar-thumb { background: #CACACA; border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: #8B8B8B; }
+
+/* ─── Luxury Glass ──────────────────────────────────────────────────────── */
+.glass {
+  backdrop-filter: blur(12px) saturate(120%);
+  -webkit-backdrop-filter: blur(12px) saturate(120%);
+  background-color: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(234, 234, 234, 0.8);
+}
+.dark .glass {
+  background-color: rgba(24, 22, 20, 0.92);
+  border: 1px solid rgba(48, 45, 42, 0.8);
+}
+
+/* ─── Timer ring ────────────────────────────────────────────────────────── */
+.timer-ring { transition: stroke-dashoffset 0.5s ease; }
+
+/* ─── Shimmer skeleton ──────────────────────────────────────────────────── */
+.shimmer {
+  background: linear-gradient(90deg, transparent 25%, rgba(255,255,255,0.7) 50%, transparent 75%);
+  background-size: 200% 100%;
+  animation: shimmer 2.5s infinite;
+}
+.dark .shimmer {
+  background: linear-gradient(90deg, transparent 25%, rgba(255,255,255,0.04) 50%, transparent 75%);
+  background-size: 200% 100%;
+}
+
+/* ─── Focus mode blur ───────────────────────────────────────────────────── */
+.focus-blur {
+  filter: blur(4px);
+  pointer-events: none;
+  transition: filter 0.3s ease;
+}
+
+/* ─── Primary gradient — warm charcoal ─────────────────────────────────── */
+.gradient-blue {
+  background: linear-gradient(135deg, #2C2C2C 0%, #555048 100%);
+}
+.gradient-blue-subtle {
+  background: linear-gradient(135deg, rgba(44,44,44,0.05) 0%, rgba(68,68,68,0.03) 100%);
+}
+
+/* ─── Landing-page utility classes ─────────────────────────────────────── */
+
+/* Section wrapper */
+.section-linen  { background-color: hsl(var(--background)); }
+.section-white  { background-color: hsl(var(--card)); }
+.section-dark   { background-color: #2A2520; color: #EDEAE5; }
+
+/* Divider */
+.divider-h { width: 100%; height: 1px; background: hsl(var(--border)); }
+.divider-v { height: 40px; width: 1px; background: hsl(var(--border)); }
+
+/* Uppercase label */
+.label-xs {
+  font-size: 0.65rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: hsl(var(--muted-foreground));
+  font-family: Arial, sans-serif;
+}
+
+/* Display heading */
+.heading-display {
+  font-family: Arial, sans-serif;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  color: hsl(var(--card-foreground));
+}
+
+/* Luxury button — solid */
+.btn-luxury {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 2rem;
+  background: hsl(var(--foreground));
+  color: hsl(var(--background));
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-family: Arial, sans-serif;
+  font-weight: 500;
+  border: 1px solid hsl(var(--foreground));
+  transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+.btn-luxury:hover { background: hsl(var(--card-foreground)); border-color: hsl(var(--card-foreground)); }
+
+/* Luxury button — outline */
+.btn-luxury-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 2rem;
+  background: transparent;
+  color: hsl(var(--foreground));
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-family: Arial, sans-serif;
+  font-weight: 500;
+  border: 1px solid hsl(var(--foreground));
+  transition: background 0.3s ease, color 0.3s ease;
+}
+.btn-luxury-outline:hover { background: hsl(var(--foreground)); color: hsl(var(--background)); }
+
+/* Input — bottom-border only */
+.input-luxury {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid hsl(var(--border));
+  padding: 0.75rem 0;
+  color: hsl(var(--card-foreground));
+  font-size: 0.875rem;
+  font-family: Arial, sans-serif;
+  font-weight: 300;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+.input-luxury::placeholder { color: hsl(var(--muted-foreground) / 0.5); }
+.input-luxury:focus { border-bottom-color: hsl(var(--foreground)); }
+
+/* ─── Editorial ornament ────────────────────────────────────────────────── */
+.ornament::before,
+.ornament::after {
+  content: "—";
+  margin: 0 0.5em;
+  color: hsl(var(--muted-foreground));
+}

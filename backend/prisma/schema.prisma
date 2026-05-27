@@ -1,0 +1,135 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String         @id @default(cuid())
+  email         String         @unique
+  googleId      String?        @unique
+  username      String
+  password      String?
+  isVerified             Boolean   @default(false)
+  verificationOtp        String?
+  verificationOtpExpiry  DateTime?
+  resetPasswordOtp        String?
+  resetPasswordOtpExpiry  DateTime?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  testimonials  Testimonial[]
+  tasks         Task[]
+  notes         Note[]
+  profile       UserProfile?
+  timerSettings TimerSettings?
+  sessions      StudySession[]
+  reviewers     Reviewer[]
+}
+
+model Testimonial {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  name      String
+  role      String?
+  initials  String
+  quote     String
+  rating    Int      @default(5)
+  anonymous Boolean  @default(true)
+  approved  Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+model Task {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title       String
+  description String   @default("")
+  category    String   @default("Other")
+  priority    String   @default("medium")
+  status      String   @default("pending")
+  dueDate     String   @default("")
+  dueTime     String   @default("")
+  createdAt   DateTime @default(now())
+}
+
+model Note {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  content   String
+  category  String   @default("General")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model UserProfile {
+  id               String @id @default(cuid())
+  userId           String @unique
+  user             User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  avatar           String @default("")
+  fullName         String @default("")
+  institution      String @default("")
+  fieldOfStudy     String @default("")
+  yearLevel        String @default("")
+  studentId        String @default("")
+  dailyGoal        String @default("")
+  studyTime        String @default("")
+  learningStyle    String @default("")
+  xp               Int    @default(0)
+  achievements     String @default("[]")
+  totalDistractions Int   @default(0)
+  perfectSessions  Int    @default(0)
+}
+
+model TimerSettings {
+  id                 String  @id @default(cuid())
+  userId             String  @unique
+  user               User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  focusDuration      Int     @default(25)
+  shortBreakDuration Int     @default(5)
+  longBreakDuration  Int     @default(15)
+  longBreakInterval  Int     @default(4)
+  autoStartBreaks    Boolean @default(false)
+  autoStartFocus     Boolean @default(false)
+  soundEnabled       Boolean @default(true)
+  volume             Float   @default(0.5)
+  weeklyGoal         Int     @default(600)
+}
+
+model StudySession {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date      String
+  duration  Int
+  mode      String
+  completed Boolean  @default(true)
+  subject   String   @default("")
+  createdAt DateTime @default(now())
+}
+
+model Reviewer {
+  id               String   @id @default(cuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  topic            String
+  originalFileName String?
+  fileType         String?
+  generatedSummary String?  @db.Text
+  reviewerContent  String?  @db.Text
+  keyConcepts      Json?
+  flashcards       Json?
+  quizzes          Json?
+  examQuestions    Json?
+  bookmarked       Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([userId])
+}
