@@ -254,7 +254,7 @@ function ReviewerCard({
             )}
             {quizCount > 0 && (
               <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300">
-                {quizCount} quiz Q's
+                {quizCount} quiz Q&apos;s
               </span>
             )}
             {conceptCount > 0 && (
@@ -420,40 +420,6 @@ function QuizItem({
       )}
     </div>
   );
-}
-
-// ── Viewer: Notes renderer ────────────────────────────────────────────────────
-
-function renderNotes(content: string) {
-  return content.split("\n").map((line, i) => {
-    if (line.startsWith("## ")) {
-      return (
-        <h3 key={i} className="text-base font-bold mt-5 mb-2 text-foreground">
-          {line.slice(3)}
-        </h3>
-      );
-    }
-    if (line.startsWith("### ")) {
-      return (
-        <h4 key={i} className="text-sm font-semibold mt-3 mb-1 text-foreground">
-          {line.slice(4)}
-        </h4>
-      );
-    }
-    if (line.startsWith("- ") || line.startsWith("• ")) {
-      return (
-        <li key={i} className="ml-4 text-sm text-muted-foreground list-disc leading-relaxed">
-          {line.slice(2)}
-        </li>
-      );
-    }
-    if (line.trim() === "") return <div key={i} className="h-2" />;
-    return (
-      <p key={i} className="text-sm text-muted-foreground leading-relaxed">
-        {line}
-      </p>
-    );
-  });
 }
 
 // ── Reviewer Viewer ───────────────────────────────────────────────────────────
@@ -933,7 +899,7 @@ export function ReviewerLibrary() {
                         className="w-full px-4 py-3 rounded-xl border border-border bg-background text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all placeholder:text-muted-foreground/60"
                       />
                       <p className="text-xs text-muted-foreground">
-                        Be specific for better results. E.g. "The French Revolution and its causes" instead of just "History".
+                        Be specific for better results. E.g. &quot;The French Revolution and its causes&quot; instead of just &quot;History&quot;.
                       </p>
                     </div>
                   )}
