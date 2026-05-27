@@ -1,6 +1,6 @@
-import { Router, Request, Response } from "express";
+import { Router, Request, Response, RequestHandler } from "express";
 import multer from "multer";
-import { requireAuth, AuthRequest } from "../middleware/auth";
+import { requireAuth, AuthRequest, h } from "../middleware/auth";
 import { PrismaClient } from "@prisma/client";
 
 const router = Router();
@@ -160,9 +160,9 @@ function parseGeminiJson(raw: string): Record<string, unknown> {
 // POST /api/reviewers/generate
 router.post(
   "/generate",
-  requireAuth,
+  requireAuth as RequestHandler,
   upload.single("file"),
-  async (req: AuthRequest, res: Response): Promise<void> => {
+  h(async (req, res) => {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       res.status(500).json({ error: "GEMINI_API_KEY not configured" });
@@ -226,11 +226,11 @@ router.post(
       console.error("[Reviewer generate]", msg);
       res.status(500).json({ error: msg });
     }
-  },
+  }),
 );
 
 // GET /api/reviewers
-router.get("/", requireAuth, async (req: AuthRequest, res: Response): Promise<void> => {
+router.get("/", requireAuth as RequestHandler, h(async (req, res) => {
   const userId = req.user!.userId;
   const rawSearch = req.query.search;
   const search = (typeof rawSearch === "string" ? rawSearch : "").trim();
@@ -261,10 +261,10 @@ router.get("/", requireAuth, async (req: AuthRequest, res: Response): Promise<vo
     console.error("[Reviewer list]", err);
     res.status(500).json({ error: "Failed to fetch reviewers" });
   }
-});
+}));
 
 // GET /api/reviewers/:id
-router.get("/:id", requireAuth, async (req: AuthRequest, res: Response): Promise<void> => {
+router.get("/:id", requireAuth as RequestHandler, h(async (req, res) => {
   const userId = req.user!.userId;
   const id = String(req.params.id);
 
@@ -279,10 +279,10 @@ router.get("/:id", requireAuth, async (req: AuthRequest, res: Response): Promise
     console.error("[Reviewer get]", err);
     res.status(500).json({ error: "Failed to fetch reviewer" });
   }
-});
+}));
 
 // PATCH /api/reviewers/:id/bookmark — toggle bookmark
-router.patch("/:id/bookmark", requireAuth, async (req: AuthRequest, res: Response): Promise<void> => {
+router.patch("/:id/bookmark", requireAuth as RequestHandler, h(async (req, res) => {
   const userId = req.user!.userId;
   const id = String(req.params.id);
 
@@ -303,10 +303,10 @@ router.patch("/:id/bookmark", requireAuth, async (req: AuthRequest, res: Respons
     console.error("[Reviewer bookmark]", err);
     res.status(500).json({ error: "Failed to update bookmark" });
   }
-});
+}));
 
 // DELETE /api/reviewers/:id
-router.delete("/:id", requireAuth, async (req: AuthRequest, res: Response): Promise<void> => {
+router.delete("/:id", requireAuth as RequestHandler, h(async (req, res) => {
   const userId = req.user!.userId;
   const id = String(req.params.id);
 
@@ -323,6 +323,6 @@ router.delete("/:id", requireAuth, async (req: AuthRequest, res: Response): Prom
     console.error("[Reviewer delete]", err);
     res.status(500).json({ error: "Failed to delete reviewer" });
   }
-});
+}));
 
 export default router;
