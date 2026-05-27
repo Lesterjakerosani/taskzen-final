@@ -1,6 +1,6 @@
 "use client";
 import { motion } from "framer-motion";
-import { Menu, Bell, Zap, BookOpen, Settings, Brain, BarChart2, Home, Timer, LogOut, Flame, ListTodo, Clock, AlertCircle, CheckCircle2, UserCircle, Trophy } from "lucide-react";
+import { Menu, Bell, BookOpen, Settings, Brain, BarChart2, Home, Timer, LogOut, Flame, ListTodo, Clock, AlertCircle, CheckCircle2, UserCircle } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import { ThemeToggle } from "./ThemeToggle";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
