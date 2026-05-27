@@ -1,41 +1,17 @@
 import nodemailer from "nodemailer";
-import type { Transporter } from "nodemailer";
 
-let _transporter: Transporter | null = null;
-
-function getTransporter(): Transporter {
-  if (_transporter) return _transporter;
-
-  const user = process.env.EMAIL_USER;
-  const clientId = process.env.GMAIL_CLIENT_ID;
-  const clientSecret = process.env.GMAIL_CLIENT_SECRET;
-  const refreshToken = process.env.GMAIL_REFRESH_TOKEN;
-
-  if (!user || !clientId || !clientSecret || !refreshToken) {
-    console.error(
-      "[Email] MISSING CREDENTIALS — EMAIL_USER, GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, " +
-      "and/or GMAIL_REFRESH_TOKEN are not set. Emails will fail."
-    );
-  } else {
-    console.log(`[Email] Transporter ready (OAuth2) — user=${user}`);
-  }
-
-  // Gmail OAuth2 — works from cloud hosts unlike App Password + SMTP
-  _transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      type: "OAuth2",
-      user,
-      clientId,
-      clientSecret,
-      refreshToken,
-    },
-  });
-
-  return _transporter;
-}
-
-const FROM = () => `"TaskZen" <${process.env.EMAIL_USER}>`;
+const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false,
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+  tls: {
+    rejectUnauthorized: false,
+  },
+});
 
 function otpBlock(otp: string) {
   return `
@@ -50,42 +26,16 @@ function otpBlock(otp: string) {
   `;
 }
 
-async function sendMail(to: string, subject: string, html: string): Promise<void> {
-  const transporter = getTransporter();
-  console.log(`[Email] Sending "${subject}" to ${to}`);
-  try {
-    const info = await transporter.sendMail({ from: FROM(), to, subject, html });
-    console.log(`[Email] Sent OK — messageId=${info.messageId}`);
-  } catch (err: any) {
-    // Log the specific SMTP error so it appears in Render logs
-    console.error(`[Email] Send FAILED to ${to}:`);
-    console.error(`  code=${err.code}  responseCode=${err.responseCode}`);
-    console.error(`  message=${err.message}`);
-    if (err.code === "EAUTH") {
-      console.error(
-        "[Email] AUTHENTICATION FAILED — your Gmail App Password is wrong or 2-Step Verification " +
-        "is disabled on the Google account. Regenerate the App Password at " +
-        "https://myaccount.google.com/apppasswords"
-      );
-    } else if (err.code === "ECONNECTION" || err.code === "ETIMEDOUT") {
-      console.error(
-        "[Email] CONNECTION FAILED — Render may be blocking outbound SMTP on port 587. " +
-        "Try switching to port 465 (secure: true) or use a dedicated email service."
-      );
-    }
-    throw err;
-  }
-}
-
 export async function sendVerificationEmail(
   to: string,
   username: string,
   otp: string
 ): Promise<void> {
-  await sendMail(
+  await transporter.sendMail({
+    from: `"TaskZen" <${process.env.EMAIL_USER}>`,
     to,
-    "Verify your TaskZen account",
-    `
+    subject: "Verify your TaskZen account",
+    html: `
       <div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto;padding:24px;">
         <h2 style="margin-bottom:8px;">Welcome to TaskZen, ${username}!</h2>
         <p style="color:#555;">Use this code to verify your email address:</p>
@@ -94,8 +44,8 @@ export async function sendVerificationEmail(
           If you didn't create a TaskZen account, you can safely ignore this email.
         </p>
       </div>
-    `
-  );
+    `,
+  });
 }
 
 export async function sendResetPasswordEmail(
@@ -103,10 +53,11 @@ export async function sendResetPasswordEmail(
   username: string,
   otp: string
 ): Promise<void> {
-  await sendMail(
+  await transporter.sendMail({
+    from: `"TaskZen" <${process.env.EMAIL_USER}>`,
     to,
-    "Reset your TaskZen password",
-    `
+    subject: "Reset your TaskZen password",
+    html: `
       <div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto;padding:24px;">
         <h2 style="margin-bottom:8px;">Password Reset</h2>
         <p style="color:#555;">Hi ${username}, use this code to reset your password:</p>
@@ -115,6 +66,6 @@ export async function sendResetPasswordEmail(
           If you didn't request this, ignore this email — your password won't change.
         </p>
       </div>
-    `
-  );
+    `,
+  });
 }
