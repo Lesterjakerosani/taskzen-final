@@ -7,27 +7,29 @@ function getTransporter(): Transporter {
   if (_transporter) return _transporter;
 
   const user = process.env.EMAIL_USER;
-  const pass = process.env.EMAIL_PASS;
+  const clientId = process.env.GMAIL_CLIENT_ID;
+  const clientSecret = process.env.GMAIL_CLIENT_SECRET;
+  const refreshToken = process.env.GMAIL_REFRESH_TOKEN;
 
-  // Always log on first use so Render logs show what's configured
-  if (!user || !pass) {
+  if (!user || !clientId || !clientSecret || !refreshToken) {
     console.error(
-      "[Email] MISSING CREDENTIALS — EMAIL_USER and/or EMAIL_PASS are not set in environment variables. " +
-      "Emails will fail. Set these in your Render dashboard under Environment."
+      "[Email] MISSING CREDENTIALS — EMAIL_USER, GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, " +
+      "and/or GMAIL_REFRESH_TOKEN are not set. Emails will fail."
     );
   } else {
-    console.log(`[Email] Transporter ready — user=${user}, pass=${"*".repeat(pass.length)}`);
+    console.log(`[Email] Transporter ready (OAuth2) — user=${user}`);
   }
 
+  // Gmail OAuth2 — works from cloud hosts unlike App Password + SMTP
   _transporter = nodemailer.createTransport({
-    host: "smtp-relay.brevo.com",
-    port: 587,
-    secure: false,
-    auth: { user, pass },
-    tls: { rejectUnauthorized: false },
-    connectionTimeout: 15_000,
-    greetingTimeout: 10_000,
-    socketTimeout: 20_000,
+    service: "gmail",
+    auth: {
+      type: "OAuth2",
+      user,
+      clientId,
+      clientSecret,
+      refreshToken,
+    },
   });
 
   return _transporter;
