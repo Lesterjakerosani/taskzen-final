@@ -16,12 +16,30 @@ import passport from "./lib/passport";
 
 const app = express();
 const PORT = Number(process.env.PORT ?? 4000);
-const FRONTEND_URL = process.env.FRONTEND_URL ?? "http://localhost:3000";
+
+// Support comma-separated list so you can whitelist both Vercel preview and production URLs.
+// Example in Render: FRONTEND_URL=https://taskzen.vercel.app,https://taskzen-preview.vercel.app
+const rawOrigins = process.env.FRONTEND_URL ?? "http://localhost:3000";
+const ALLOWED_ORIGINS = rawOrigins.split(",").map((o) => o.trim()).filter(Boolean);
+
+// Startup diagnostics — visible in Render logs
+console.log(`[Startup] NODE_ENV=${process.env.NODE_ENV ?? "(not set)"}`);
+console.log(`[Startup] Allowed CORS origins: ${ALLOWED_ORIGINS.join(", ")}`);
+console.log(`[Startup] EMAIL_USER=${process.env.EMAIL_USER ?? "NOT SET ⚠"}`);
+console.log(`[Startup] EMAIL_PASS=${process.env.EMAIL_PASS ? "SET ✓" : "NOT SET ⚠"}`);
+console.log(`[Startup] DATABASE_URL=${process.env.DATABASE_URL ? "SET ✓" : "NOT SET ⚠"}`);
+console.log(`[Startup] JWT_SECRET=${process.env.JWT_SECRET ? "SET ✓" : "NOT SET ⚠"}`);
 
 app.set("trust proxy", 1);
 
 app.use(cors({
-  origin: FRONTEND_URL,
+  origin: (origin, callback) => {
+    // Allow requests with no origin (curl, Postman, server-to-server)
+    if (!origin) return callback(null, true);
+    if (ALLOWED_ORIGINS.includes(origin)) return callback(null, true);
+    console.warn(`[CORS] Blocked request from origin: ${origin}`);
+    callback(new Error(`CORS: origin ${origin} is not allowed`));
+  },
   credentials: true,
 }));
 app.use(express.json({ limit: "10mb" }));

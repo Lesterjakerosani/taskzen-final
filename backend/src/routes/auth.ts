@@ -14,10 +14,13 @@ const FRONTEND_URL = process.env.FRONTEND_URL ?? "http://localhost:3000";
 
 function issueJwt(res: Response, user: { id: string; email: string; username: string }, rememberMe = false) {
   const token = signToken({ userId: user.id, email: user.email, username: user.username }, rememberMe);
+  const isProd = process.env.NODE_ENV === "production";
   res.cookie("token", token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    secure: isProd,
+    // Cross-domain (Vercel frontend → Render backend) requires sameSite "none" + secure.
+    // "lax" blocks cookies on cross-origin fetch requests.
+    sameSite: isProd ? "none" : "lax",
     maxAge: rememberMe ? 30 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000,
   });
   return token;
@@ -380,10 +383,11 @@ router.post("/change-password", requireAuth as RequestHandler, h(async (req, res
 
 // POST /api/auth/logout
 router.post("/logout", (req: Request, res: Response): void => {
+  const isProd = process.env.NODE_ENV === "production";
   res.clearCookie("token", {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    secure: isProd,
+    sameSite: isProd ? "none" : "lax",
   });
   if (req.session) {
     req.session.destroy(() => res.json({ message: "Logged out" }));
