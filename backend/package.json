@@ -29,7 +29,8 @@
     "nodemailer": "^8.0.8",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
-    "pdf-parse": "^2.4.5"
+    "pdf-parse": "^2.4.5",
+    "resend": "^6.12.4"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
